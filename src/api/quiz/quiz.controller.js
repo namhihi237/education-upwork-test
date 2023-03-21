@@ -61,10 +61,18 @@ module.exports.getQuiz = async (req, res) => {
     const { id } = req.params;
     const quiz = await Quizzes.findOne({
       where: { id },
-      include: ['questions'],
+      include: [{
+        model: Questions,
+        as: 'questions',
+        include: [{
+          model: Answers,
+          as: 'answers',
+        }]
+      }],
     });
     responseSuccess(res, quiz)
   } catch (error) {
+    console.log(error);
     responseFailure(res, [errorCode.serverError], 500)
   }
 }
