@@ -72,7 +72,6 @@ module.exports.getQuiz = async (req, res) => {
     });
     responseSuccess(res, quiz)
   } catch (error) {
-    console.log(error);
     responseFailure(res, [errorCode.serverError], 500)
   }
 }
