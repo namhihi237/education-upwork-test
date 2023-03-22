@@ -6,7 +6,9 @@ const {
   invalid_is_completed,
   invalid_questions,
   invalid_answers,
-  no_correct_answer
+  no_correct_answer,
+  answer_question_invalid,
+  answerIds_invalid
 } = errorCode;
 
 module.exports.createQuizMiddleware = (req, res, next) => {
@@ -40,6 +42,28 @@ module.exports.createQuizMiddleware = (req, res, next) => {
         if (!hasCorrectAnswer) {
           !errors.includes(no_correct_answer) ? errors.push(no_correct_answer) : null;
         }
+      }
+    }
+  }
+
+  if (errors.length > 0) {
+    return responseFailure(res, errors, 400);
+  }
+
+  next();
+}
+
+module.exports.checkAnswerMiddleware = (req, res, next) => {
+  const { answerQuestions } = req.body;
+  const errors = [];
+  if (answerQuestions && !Array.isArray(answerQuestions)) {
+    errors.push(answer_question_invalid);
+  }
+
+  if (answerQuestions && Array.isArray(answerQuestions)) {
+    for (const { answerIds } of answerQuestions) {
+      if (answerIds && !Array.isArray(answerIds)) {
+        !errors.includes(answerIds_invalid) ? errors.push(answerIds_invalid) : null;
       }
     }
   }

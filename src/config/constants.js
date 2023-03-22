@@ -7,4 +7,6 @@ module.exports.errorCode = {
   'invalid_answers': 4005,
   'no_correct_answer': 4006,
   'quiz_not_found': 4041,
+  'answer_question_invalid': 4007,
+  'answerIds_invalid': 4008,
 }
