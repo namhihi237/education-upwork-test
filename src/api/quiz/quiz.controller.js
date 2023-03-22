@@ -75,3 +75,43 @@ module.exports.getQuiz = async (req, res) => {
     responseFailure(res, [errorCode.serverError], 500)
   }
 }
+
+module.exports.checkAnswer = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { answerQuestions = [] } = req.body;
+    const results = [];
+
+    let quiz = await Quizzes.findOne({
+      where: { id },
+      include: [{
+        model: Questions,
+        as: 'questions',
+        include: [{
+          model: Answers,
+          as: 'answers',
+        }]
+      }],
+    });
+
+    if (!quiz) {
+      return responseFailure(res, [errorCode.quiz_not_found], 404);
+    }
+
+    quiz = JSON.parse(JSON.stringify(quiz));
+
+    for (const question of quiz.questions) {
+      const answerQuestion = answerQuestions.find(answer => answer.questionId === question.id);
+      const rightAnswerIds = question.answers?.filter(answer => answer.isRight)?.map(answer => answer.id);
+      results.push({
+        questionId: question.id,
+        isRightAnswer: !!(answerQuestion && JSON.stringify(answerQuestion?.answerIds) === JSON.stringify(rightAnswerIds)),
+        rightAnswerIds
+      })
+    }
+
+    responseSuccess(res, { results }, 200);
+  } catch (error) {
+    responseFailure(res, [errorCode.serverError], 500)
+  }
+}
